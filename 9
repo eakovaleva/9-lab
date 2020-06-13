@@ -1,0 +1,122 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <windows.h>
+
+/**             ПРОЕКТ "КАЛЬКУЛЯТОР РАЦИОНАЛЬНЫХ ЧИСЕЛ"
+    Проектирование "неограниченного" калькулятора, манипулирующего рациональными числами.
+
+    Это калькулятор, манипулирующий ЛЮБЫМИ КОНЕЧНЫМИ числами.
+    Мы намерены создать калькулятор, не зависящий от размера разрядной сетки платформы.
+
+    Рациональное число - это число, которое можно представить обыкновенной дробью:
+        r = m/n, где m – любое целое, а n – натуральное
+    Т.е. с точки зрения программиста (как и математика) рациональное число есть пара чисел {m, n}
+    какого-либо целого типа данных, причём n принадлежит беззнаковому типу, а m – знаковому.
+*/
+
+typedef struct{
+    char* m;        /// числитель
+    char* n;        /// знаменатель
+} number;
+
+#define isop(C) ((C=='+'||C=='-')?1:0)
+
+number input(){
+    number num;
+    int i=0, j=0;
+
+    char* wh = (char*) malloc (sizeof(char));
+    char* fr = (char*) malloc (sizeof(char));
+    strcpy(wh, "0");
+    strcpy(fr, "0");
+
+    char C;             ///введенная цифра
+    C = getchar();
+
+    ///распознование 1-го символа. Допустимо: '+', '-', ',', '.', цифра
+    if ((C == '+') || (C == '-')){
+        wh[i++] = C;
+        wh = (char*) realloc (wh,i *sizeof(char));
+        goto WHOLE;     ///на ввод целой части
+    }
+    else if (C == ',' || C == '.')
+        goto FRACT;     ///на ввод дробной части
+
+    else if (C >= '0' && C <= '9'){
+        wh[i++] = C;
+        wh = (char*) realloc (wh,i *sizeof(char));
+        goto WHOLE;     ///на ввод целой части
+    }
+    else goto FINISH;   ///введен недопустимый символ
+
+WHOLE:; ///ввод целой части
+    while (isdigit(C=getchar())){
+        printf("\nзнак %c\n",C);
+        wh[i++] = C;                     ///добавление цифры
+        wh = (char*) realloc (wh,i *sizeof(char));
+        printf("\nстрока %s.%s\n",wh,fr);
+    }
+    if (C == 10){                    ///закончен ввод
+        goto FINISH;
+    }
+    if (C != ',' && C != '.'){      ///введен недопустимый символ
+        strcpy(wh, "0");
+        goto FINISH;
+    }
+
+FRACT:; ///ввод дробной части
+    while (isdigit(C=getchar())){
+        fr[j++] = C;   ///добавление цифры
+        fr = (char*) realloc (fr,j *sizeof(char));
+    }
+
+FINISH:;///завершение
+    printf("\n%s.%s\n",wh,fr);
+
+    if (!(strcmp(wh, "0")) && !(strcmp(fr, "0")) ){
+        num.m = (char*) malloc (sizeof(char));
+        num.n = (char*) malloc (sizeof(char));
+        strcpy(num.m, "0");
+        strcpy(num.n, "0");
+        printf("\n\nВведен недопустимы символ");
+    }
+    else {
+        wh[i] = '\0';
+        fr[j] = '\0';
+        num.m = (char*) malloc ((strlen(wh)+strlen(fr)) *sizeof(char));
+        strcpy(num.m, wh);
+        num.m[strlen(wh)]='\0';
+        strcat(num.m, fr);
+        num.m[strlen(wh)+strlen(fr)] = '\0';
+        num.n = (char*) malloc ((strlen(fr)+1) *sizeof(char));
+        num.n[0] = '1';
+        for (i=1; i<(strlen(fr)+1); i++){
+            num.n[i] = '0';
+        }
+        num.n[i] = '\0';
+
+    }
+    return num;
+}
+
+int main()
+{
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+
+    printf("Вычисление значений суммы, разности и произведения рациональных чисел\n");
+    printf("\nВведите значиния операндов");
+
+    printf("\n\nA: ");
+    number A = input();
+    printf("\nB: ");
+    number B = input();
+
+    printf("Hello world!\n");
+    printf("\n%s/%s\n%s/%s\n", A.m, A.n, B.m, B.n);
+    //printf("Sum: %s\n", summer(A, B));
+    //printf("Product: %s\n", multiplier(A, B));
+    return 0;
+}
